@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('images/background4.jpg') no-repeat center center / cover;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 500px; /* Adjusted width for better layout */
+        }
+        
+        .container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .input-container {
+            margin-bottom: 20px; /* Reduced margin for better spacing */
+        }
+        
+        .input-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .input-container input {
+            width: 500px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+            margin-left: 8px;
+            margin-right: 10px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-style: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 100px;
+            margin: 8px 0; /* Adjusted margin for spacing below input containers */
+        }
+
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div class="input-container">
+        <label for="customerId">Customer ID:</label>
+        <input type="text" id="customerId" placeholder="Enter Customer ID">
+        
+        <label for="customerName">Customer Name:</label>
+        <input type="text" id="customerName" placeholder="Enter Customer Name">
+    </div>
+    
+    <button class="button" onclick="location.href='product_verification.html'">Product Verification</button>
+    
+   
+</body>
+</html>

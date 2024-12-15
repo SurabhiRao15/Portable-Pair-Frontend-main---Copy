@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background: url('images/background5.jpg') no-repeat center center / cover;
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .input-container label {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #040404;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        .input-container input {
+            padding: 10px;
+            width: 300px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 1em;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            text-transform: uppercase;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        .button:active {
+            transform: translateY(1px);
+        }
+        #qrcode {
+            margin-top: 20px;
+            text-align: center;
+        }
+        #qrcode img {
+            max-width: 150px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div class="input-container">
+        <label for="productId">Enter the Product ID:</label>
+        <input type="text" id="productId" placeholder="Enter Product ID">
+        <button class="button" onclick="fetchQRCode()">Get QR Code</button>
+    </div>
+    <div id="qrcode"></div>
+
+    <h1></h1>
+    <button class="button" onclick="window.open('http://localhost:3001/block-explorer', '_blank')">
+        Open Block Explorer
+    </button>
+
+    <script>
+        function fetchQRCode() {
+            const productId = document.getElementById("productId").value;
+
+            if (!productId) {
+                alert('Please enter a Product ID.');
+                return;
+            }
+
+            // Fetch the QR code image from the server
+            const qrCodeImagePath = `qrcodes/${productId}.png`; // Path where the QR codes are stored
+            const img = document.createElement('img');
+            img.src = qrCodeImagePath;
+            img.alt = 'QR Code';
+            img.onload = function() {
+                document.getElementById("qrcode").innerHTML = ''; // Clear previous QR code
+                document.getElementById("qrcode").appendChild(img);
+            };
+            img.onerror = function() {
+                alert('QR Code not found. Please check the Product ID.');
+                document.getElementById("qrcode").innerHTML = ''; // Clear previous QR code
+            };
+        }
+    </script>
+</body>
+</html>

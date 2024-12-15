@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: url('images/logo.jpg') no-repeat center center / cover;
+        }
+        
+        .content {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1s ease-in;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            color: #222;
+            margin-bottom: 30px;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s, background-color 0.3s;
+            position: relative;
+            overflow: hidden;
+            color: #030303;
+            font-weight: bold;
+        }
+        
+        .button:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transition: transform 0.5s;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 0;
+        }
+        
+        .button:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            transform: translateY(-5px);
+        }
+        
+        .button:hover:before {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .button:first-child {
+            background: linear-gradient(90deg, #e56643, #74eb45); /* Red gradient for Manufacturer */
+        }
+        
+        .button:nth-child(2) {
+            background: linear-gradient(90deg, #74eb45, #e56643); /* Blue gradient for Seller */
+        }
+        
+        .button:last-child {
+            background: linear-gradient(90deg, #e56643, #74eb45); /* Blue gradient for Consumer */
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            .button {
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+            .button-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>  </h1>
+    <div class="button-container">
+        <button class="button" onclick="location.href='manufacturer.html'">Manufacturer</button>
+        <button class="button" onclick="location.href='seller.html'">Seller</button>
+        <button class="button" onclick="location.href='consumer.html'">Consumer</button>
+    </div>
+    
+    
+        
+</body>
+</html>

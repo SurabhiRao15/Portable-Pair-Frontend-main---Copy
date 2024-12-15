@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Page</title>
+    <style>
+        
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                height: 100vh;
+                margin: 15;
+                background: url('images/background3.jpg') no-repeat center center / cover;
+            }
+        
+            .input-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 30px;
+            }
+        
+            .input-container label {
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+        
+            .input-container input {
+                padding: 10px;
+                margin-bottom: 15px;
+                width: 300px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-sizing: border-box;
+            }
+        
+            .input-container .button {
+                margin: 5px;
+                padding: 10px 15px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+        
+            .input-container .button:hover {
+                background-color: #45a049;
+            }
+        
+            #selectedQRCodes {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 60%;
+                gap: 20px; /* Reduced space between the QR codes */
+                width: auto;
+               
+            }
+        
+            #selectedQRCodes div {
+                text-align: center;
+                margin: 0px;
+            }
+        
+            #selectedQRCodes img {
+                max-width: 150px;
+                height: auto;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+        
+            #qrcode {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                margin-top: 20px;
+            }
+        
+            #qrcode canvas {
+                margin: 10px;
+            }
+        
+            #downloadButton {
+                margin-top: 10px;
+            }
+        </style>
+        
+    </style>
+</head>
+<body>
+    <h1>
+    <div class="input-container">
+        <label for="productId">Product ID:</label>
+        <input type="text" id="productId" placeholder="Enter Product ID">
+        <button class="button" onclick="selectQRCode('manufacturer')">Select Manufacturer QR Code</button>
+        <button class="button" onclick="selectQRCode('seller')">Select Seller QR Code</button>
+        <button class="button" onclick="generateFinalQRCode()">Final QR Code</button>
+        <button class="button" id="downloadButton" style="display: none;" onclick="downloadQRCode()">Download QR Code</button>
+    </div>
+</h1>
+
+    <div id="selectedQRCodes">
+        
+        <div id="manufacturerQRCodeDisplay"></div>
+        <div id="sellerQRCodeDisplay"></div>
+    </div>
+
+    <div id="qrcode"></div>
+
+    <!-- QR Code Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- QR Code Decoding Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <script>
+        let manufacturerData = null;
+        let sellerData = null;
+        
+        function selectQRCode(type) {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/png, image/jpeg';
+            input.onchange = event => {
+                var file = event.target.files[0];
+                if (file) {
+                    var reader = new FileReader();
+                    reader.onload = e => {
+                        var img = new Image();
+                        img.src = e.target.result;
+                        img.onload = () => {
+                            // Create a canvas to extract image data
+                            var canvas = document.createElement('canvas');
+                            var context = canvas.getContext('2d');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            context.drawImage(img, 0, 0);
+                            var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                            var qrCodeContent = jsQR(imageData.data, canvas.width, canvas.height);
+        
+                            if (qrCodeContent) {
+                                try {
+                                    // Parse the QR code content as JSON
+                                    var parsedData = JSON.parse(qrCodeContent.data);
+                                    
+                                    // Ensure parsed data is an object and contains an 'id'
+                                    if (parsedData && typeof parsedData === 'object') {
+                                        if (type === 'manufacturer') {
+                                            manufacturerData = parsedData;
+                                            displayQRCode(img.src, 'manufacturerQRCodeDisplay');
+                                        } else if (type === 'seller') {
+                                            sellerData = parsedData;
+                                            displayQRCode(img.src, 'sellerQRCodeDisplay');
+                                        }
+                                    } else {
+                                        throw new Error('Invalid QR data structure');
+                                    }
+                                } catch (error) {
+                                    alert('The QR code does not contain valid JSON data. Please try again.');
+                                }
+                            } else {
+                                alert('Could not decode QR code. Please try again with a valid QR code.');
+                            }
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+            input.click();
+        }
+
+        function displayQRCode(dataURL, displayId) {
+            var displayDiv = document.getElementById(displayId);
+            displayDiv.innerHTML = `<img src="${dataURL}" alt="QR Code">`;
+        }
+
+        /*
+        async function sendTransactionToRandomNode(data) {
+            var ports = [3001];
+            var randomPort = ports[Math.floor(Math.random() * ports.length)];
+            var url = `http://localhost:${randomPort}/transaction/broadcast`;
+        
+            try {
+                var response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+        
+                if (!response.ok) {
+                    throw new Error(`Transaction failed on port ${randomPort}`);
+                }
+        
+                var result = await response.json();
+                return result; // Successful transaction response
+            } catch (error) {
+                console.error("Error in transaction:", error);
+                alert("Transaction failed. Please try again.");
+                return null;
+            }
+        }
+
+        */
+        
+        // Function to generate the final QR code
+// Function to select a random blockchain node port and send the transaction
+async function sendTransactionToRandomNode(combinedData, productId) {
+    var ports = [3001];
+    var randomPort = ports[Math.floor(Math.random() * ports.length)];
+    var url = `http://localhost:${randomPort}/transaction/broadcast`;
+    var url1 = `http://localhost:${randomPort}/mine`;
+
+    // varructing the data payload in the required format
+    var data = {
+        manufacturerId: combinedData.manufacturerId,
+        sellerId: combinedData.sellerId,
+        ProductCost: combinedData.ProductCost,
+        productId: productId,
+        productName: combinedData.productName,
+        batchNumber: combinedData.batchNumber,
+        sellerName: combinedData.sellerName,
+        ProductCost: combinedData.productCost
+    };
+
+    try {
+        var response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Transaction failed on port ${randomPort}`);
+        }
+
+        var result = await response.json();
+
+        var response = await fetch(url1, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        // Assuming the response is in JSON format
+        var data = await response.json();
+
+        return data;
+         // Successful transaction response
+    } catch (error) {
+        console.error("Error in transaction:", error);
+        alert("Transaction failed. Please try again.");
+        return null;
+    }
+}
+
+// Function to generate the final QR code
+async function generateFinalQRCode() {
+    var productId = document.getElementById("productId").value;
+    if (!manufacturerData || !sellerData) {
+        alert("Please select both QR codes before generating the final QR code.");
+        return;
+    }
+    if (!productId) {
+        alert("Please enter a Product ID to save the QR Code.");
+        return;
+    }
+    var combinedData = {
+        ...manufacturerData,
+        ...sellerData
+    };
+    var combinedDataJson = JSON.stringify(combinedData);
+
+    console.log(combinedDataJson);
+    console.log(manufacturerData);
+    console.log(sellerData);
+
+    // Send transaction to a randomly selected blockchain node
+    var transactionResult = await sendTransactionToRandomNode(combinedData, productId);
+
+    const combinedResult = {
+        hash: transactionResult.block.hash,
+        transaction: transactionResult.block.transactions[1]
+    };
+
+    console.log(combinedResult);
+
+    if (transactionResult) {
+        // Combine data for QR code display
+        var combinedData = JSON.stringify(combinedResult);
+
+        // Clear previous QR code and generate a new one with combined data
+        document.getElementById("qrcode").innerHTML = "";
+        new QRCode(document.getElementById("qrcode"), {
+            text: combinedData,
+            width: 200,
+            height: 200,
+        });
+
+        // Show the Download QR Code button
+        document.getElementById("downloadButton").style.display = "inline-block";
+    } else {
+        alert("Failed to send transaction. QR Code generation canceled.");
+    }
+}
+
+            
+
+        function downloadQRCode() {
+            var productId = document.getElementById("productId").value;
+            var canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first.');
+                return;
+            }
+
+            var qrCodeDataUrl = canvas.toDataURL("image/png");
+
+            // Send the QR code data to the server to save
+            fetch('/qrcode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ qrDataUrl: qrCodeDataUrl, filename: `${productId}.png` })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('QR Code saved successfully.');
+                } else {
+                    alert('Error saving QR Code.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving the QR Code.');
+            });
+        }
+    </script>
+</body>
+</html>

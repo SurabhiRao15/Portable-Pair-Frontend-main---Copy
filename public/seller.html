@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('images/background2.jpg') no-repeat center center / cover;
+            color: #333;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px; /* Adjusted width for better layout */
+        }
+        
+        .container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .input-container {
+            margin-bottom: 40px; /* Increased margin for distance from buttons */
+        }
+        
+        .input-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .input-container input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Aligns buttons in a single line */
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: nowrap; /* Ensures buttons stay in one line */
+        }
+        
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            flex: 1; /* Makes buttons adapt to available space */
+            text-align: center; /* Ensures text is centered */
+        }
+        
+        .button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        
+        #qrcode {
+            margin-top: 20px;
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            background: #fff;
+            display: inline-block;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div class="input-container">
+        
+        
+        <label for="sellerId">Seller ID:</label>
+        <input type="text" id="sellerId" placeholder="Enter Seller ID">
+        
+        <label for="sellerName">Seller Name:</label>
+        <input type="text" id="sellerName" placeholder="Enter Seller Name">
+
+        <label for="productCost">Product Cost:</label>
+        <input type="text" id="productCost" placeholder="Enter Product Cost">
+        
+        <button class="button" onclick="generateQRCode()">Generate QR Code</button>
+        <button class="button" onclick="saveQRCode()">Save QR Code</button>
+        <button class="button" onclick="redirectToVerifyPage()">Update QR Code</button>
+    </div>
+
+    <div id="qrcode"></div>
+
+    <!-- QR Code Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            const sellerId = document.getElementById("sellerId").value;
+            const sellerName = document.getElementById("sellerName").value;
+            const productCost = document.getElementById("productCost").value;
+        
+            if (!sellerId || !sellerName) {
+                alert('Please fill in all fields to generate a QR Code.');
+                return;
+            }
+        
+            const qrData = {
+                sellerId: sellerId,
+                sellerName: sellerName,
+                productCost: productCost
+            };
+        
+            const qrDataJson = JSON.stringify(qrData); // This will create a JSON string
+        
+            console.log(qrDataJson); // You can print it to check
+        
+            document.getElementById("qrcode").innerHTML = ""; // Clear previous QR code
+        
+            // Generate the QR code with the JSON string
+            new QRCode(document.getElementById("qrcode"), {
+                text: qrDataJson, // Use the JSON string here
+                width: 200,
+                height: 200
+            });
+        }
+        
+
+        function saveQRCode() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first.');
+                return;
+            }
+
+            // Get the Product ID to name the file
+            const sellerId = document.getElementById("sellerId").value;
+            if (!sellerId) {
+                alert('Please enter a Product ID to save the QR Code.');
+                return;
+            }
+
+            const qrCodeDataUrl = canvas.toDataURL("image/png");
+
+            // Create a download link
+            const link = document.createElement('a');
+            link.href = qrCodeDataUrl;
+            link.download = `${sellerId}.png`; // Name the file with Product ID
+            document.body.appendChild(link);
+            link.click(); // Trigger download
+            document.body.removeChild(link); // Clean up
+
+            // Optionally: Send the QR code data to the server
+            fetch('/save-qrcode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ qrDataUrl: qrCodeDataUrl })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('QR Code saved successfully....');
+                } else {
+                    alert('QR Code saved successfully.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving the QR Code.');
+            });
+        }
+        function redirectToVerifyPage() {
+            // Redirect to verify.html
+            window.location.href = "verify.html";
+        }
+    </script>
+</body>
+</html>
